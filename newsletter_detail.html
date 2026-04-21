@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>바이브 코딩으로 공구관리 앱 만들기 — 강좌 상세</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-deep: #1c2b1a;
+    --green-mid: #2b4a1a;
+    --green-accent: #5a7a3a;
+    --green-light: #c8d8a0;
+    --green-pale: #e8f0d8;
+    --green-faint: #f2f7ea;
+    --amber: #c8820a;
+    --amber-light: #fef3dc;
+    --sand: #f0ece4;
+    --sand-mid: #e8e2d8;
+    --ink: #0f1f0c;
+    --body: #2e2e2e;
+    --muted: #6a6a6a;
+    --white: #faf8f4;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--sand);
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--body);
+    line-height: 1.7;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--green-deep);
+    position: relative;
+    overflow: hidden;
+    padding: 80px 24px 72px;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 90% 20%, rgba(90,122,58,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(43,74,26,0.5) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(200,216,160,0.15);
+    border: 1px solid rgba(200,216,160,0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--green-light);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green-light);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .hero-kicker {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    color: var(--green-accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .hero-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  .hero-title em {
+    font-style: normal;
+    color: var(--green-light);
+  }
+  .hero-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.68);
+    line-height: 1.8;
+    max-width: 540px;
+    margin-bottom: 40px;
+    word-break: keep-all;
+  }
+
+  /* 히어로 스탯 */
+  .hero-stats {
+    display: flex;
+    gap: 0;
+    border: 1px solid rgba(200,216,160,0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    max-width: 480px;
+  }
+  .stat {
+    flex: 1;
+    padding: 16px 12px;
+    text-align: center;
+    border-right: 1px solid rgba(200,216,160,0.15);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-val {
+    display: block;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green-light);
+    line-height: 1.2;
+  }
+  .stat-label {
+    display: block;
+    font-size: 10px;
+    color: rgba(200,216,160,0.6);
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── 본문 공통 ── */
+  .section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 24px;
+  }
+  .section + .section {
+    border-top: 1px solid var(--sand-mid);
+    padding-top: 56px;
+  }
+  .section-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--green-accent);
+  }
+  .section-eyebrow span {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green-accent);
+  }
+  .section-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(20px, 3.5vw, 28px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  .section-body {
+    font-size: 14.5px;
+    line-height: 1.9;
+    color: var(--body);
+    word-break: keep-all;
+  }
+  .section-body strong { color: var(--ink); font-weight: 700; }
+
+  /* ── 공감 도입부 ── */
+  .empathy-block {
+    background: var(--green-deep);
+    border-radius: 6px;
+    padding: 32px;
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .empathy-block::after {
+    content: '"';
+    position: absolute;
+    right: 24px;
+    top: -10px;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 120px;
+    color: rgba(200,216,160,0.08);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .empathy-quote {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    color: var(--green-light);
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .empathy-quote span { display: block; margin-bottom: 4px; }
+  .empathy-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.8;
+  }
+
+  /* ── 강좌 특징 3가지 ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .feature-card {
+    background: var(--white);
+    border: 1px solid var(--sand-mid);
+    border-radius: 6px;
+    padding: 24px 20px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .feature-num {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--green-pale);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .feature-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .feature-desc {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── 커리큘럼 ── */
+  .curriculum {
+    margin-top: 32px;
+  }
+  .part-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0;
+    border: 1px solid var(--sand-mid);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background: var(--white);
+    transition: border-color 0.2s;
+  }
+  .part-item:hover { border-color: var(--green-accent); }
+  .part-num-col {
+    background: var(--green-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-light);
+    padding: 20px 0;
+  }
+  .part-content {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .part-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .part-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .part-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--green-pale);
+    color: var(--green-mid);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── 수강 대상 ── */
+  .target-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+  @media (max-width: 520px) { .target-grid { grid-template-columns: 1fr; } }
+  .target-card {
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .target-card.yes {
+    background: var(--green-faint);
+    border: 1px solid #c0d4a0;
+  }
+  .target-card.no {
+    background: #fdf3f3;
+    border: 1px solid #e8c0c0;
+  }
+  .target-label {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .target-card.yes .target-label { color: var(--green-mid); }
+  .target-card.no .target-label { color: #a03030; }
+  .target-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .target-list li {
+    font-size: 13px;
+    line-height: 1.55;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    color: var(--body);
+  }
+  .target-list li::before {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 11px;
+  }
+  .target-card.yes .target-list li::before { content: '✔'; color: var(--green-accent); }
+  .target-card.no .target-list li::before { content: '✘'; color: #c04040; }
+
+  /* ── 완성 결과물 ── */
+  .output-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .output-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--sand-mid);
+    border-radius: 6px;
+    padding: 16px 18px;
+  }
+  .output-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+  .output-text strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .output-text span {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── 운영 방식 (온/오프라인) ── */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 28px;
+  }
+  @media (max-width: 520px) { .mode-grid { grid-template-columns: 1fr; } }
+  .mode-card {
+    border-radius: 6px;
+    padding: 24px 20px;
+    position: relative;
+  }
+  .mode-card.online {
+    background: var(--white);
+    border: 1px solid var(--sand-mid);
+  }
+  .mode-card.offline {
+    background: var(--green-deep);
+    border: 1px solid var(--green-deep);
+  }
+  .mode-card-label {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .mode-card.online .mode-card-label { color: var(--green-accent); }
+  .mode-card.offline .mode-card-label { color: var(--green-light); }
+  .mode-card-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .mode-card.online .mode-card-title { color: var(--ink); }
+  .mode-card.offline .mode-card-title { color: #fff; }
+  .mode-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .mode-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 12.5px;
+    padding-bottom: 7px;
+    border-bottom: 1px dashed;
+  }
+  .mode-card.online .mode-row { border-color: var(--sand-mid); }
+  .mode-card.offline .mode-row { border-color: rgba(200,216,160,0.2); }
+  .mode-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .mode-key { color: var(--muted); }
+  .mode-card.offline .mode-key { color: rgba(255,255,255,0.5); }
+  .mode-val { font-weight: 700; }
+  .mode-card.online .mode-val { color: var(--ink); }
+  .mode-card.offline .mode-val { color: var(--green-light); }
+
+  /* 내일배움카드 뱃지 */
+  .support-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--amber-light);
+    border: 1px solid rgba(200,130,10,0.25);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-top: 14px;
+  }
+  .support-badge::before {
+    content: '★';
+    font-size: 11px;
+  }
+
+  /* ── 강사 소개 ── */
+  .author-block {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    background: var(--white);
+    border: 1px solid var(--sand-mid);
+    border-radius: 6px;
+    padding: 28px 24px;
+    margin-top: 28px;
+  }
+  @media (max-width: 480px) { .author-block { flex-direction: column; } }
+  .author-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--green-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green-light);
+    flex-shrink: 0;
+  }
+  .author-info {}
+  .author-name {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .author-role {
+    font-size: 11px;
+    color: var(--green-accent);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .author-bio {
+    font-size: 13px;
+    color: var(--body);
+    line-height: 1.8;
+  }
+  .author-quote {
+    display: block;
+    margin-top: 10px;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--green-accent);
+    padding-left: 12px;
+    border-left: 2px solid var(--green-accent);
+  }
+
+  /* ── CTA 섹션 ── */
+  .cta-section {
+    background: var(--green-deep);
+    padding: 64px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(90,122,58,0.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-inner { position: relative; z-index: 1; }
+  .cta-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.45;
+    margin-bottom: 12px;
+  }
+  .cta-title em { font-style: normal; color: var(--green-light); }
+  .cta-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-light);
+    color: var(--green-deep);
+    font-size: 14px;
+    font-weight: 900;
+    padding: 14px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: #d8e8b0; transform: translateY(-2px); }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid rgba(200,216,160,0.4);
+    color: var(--green-light);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--green-light); background: rgba(200,216,160,0.08); }
+  .cta-note {
+    margin-top: 20px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* ── 사이트 푸터 ── */
+  .site-footer {
+    background: #111a0f;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .site-footer p {
+    font-size: 11px;
+    color: rgba(200,216,160,0.3);
+    line-height: 1.8;
+  }
+
+  /* ── 페이지 내 진행 표시바 ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: var(--green-accent);
+    width: 0%;
+    z-index: 999;
+    transition: width 0.1s;
+  }
+  /* ── 상단 네비 ── */
+  .top-nav {
+    background: rgba(28,43,26,0.95);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-light);
+    letter-spacing: 0.08em;
+  }
+  .nav-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(200,216,160,0.6);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--green-light); }
+</style>
+</head>
+<body>
+
+<!-- 진행 바 -->
+<div class="progress-bar" id="progress"></div>
+
+<!-- 상단 네비 -->
+<nav class="top-nav">
+  <div class="nav-logo">㈜한국디지털교육원</div>
+  <a href="newsletter_snippet.html" class="nav-back">
+    ← 뉴스레터로 돌아가기
+  </a>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">강좌 개설 예정</div>
+    <p class="hero-kicker">바이브 코딩(Vibe Coding) 실전 강좌</p>
+    <h1 class="hero-title">
+      코딩 몰라도 됩니다.<br>
+      <em>AI한테 말만 하면</em><br>
+      앱이 만들어집니다.
+    </h1>
+    <p class="hero-sub">
+      구글 스프레드시트 + Claude AI + 복붙(Ctrl+V)으로<br>
+      현장에서 바로 쓰는 공구관리 앱을 직접 완성하는 실전 강좌
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-val">20강</span>
+        <span class="stat-label">전체 차시</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">5파트</span>
+        <span class="stat-label">구성</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">0줄</span>
+        <span class="stat-label">직접 코딩</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">1개</span>
+        <span class="stat-label">완성 앱</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 공감 도입부 ══════════ -->
+<div class="section">
+  <div class="section-eyebrow"><span>Why This Course</span></div>
+  <h2 class="section-title">이 상황, 매일 겪고 계시지 않나요?</h2>
+
+  <div class="empathy-block">
+    <div class="empathy-quote">
+      <span>"어이, 김 씨! 어제 그 임팩트 드릴 어디 뒀어?"</span>
+      <span>"사무실 창고에 망치 재고가 하나도 없는데 누가 다 가져갔지?"</span>
+    </div>
+    <p class="empathy-text">
+      엑셀로 정리하자니 현장에서 쓰기 불편하고, 종이에 적자니 분실하기 일쑤입니다.<br>
+      전용 앱을 만들자니 개발 비용이 만만치 않고, 코딩은 전문가나 하는 것처럼 느껴집니다.
+    </p>
+  </div>
+
+  <p class="section-body">
+    이 강좌는 <strong>그 거절의 목소리를 지우기 위해</strong> 만들었습니다.<br><br>
+    바이브 코딩(Vibe Coding)은 복잡한 문법 대신 <strong>여러분의 의도를 AI에게 말하듯 전달</strong>하는 방식입니다.
+    "클로드, 반납 날짜가 비어 있으면 대출 중인 걸로 계산해 줘"라고 말하면,
+    AI가 찰떡같이 알아듣고 코드를 짜줍니다. 여러분은 그저 복사해서 붙여넣기만 하면 됩니다.
+  </p>
+</div>
+
+<!-- ══════════ 강좌 특징 ══════════ -->
+<div class="section" style="background: var(--white); max-width: 100%; padding: 64px 0;">
+<div class="section" style="padding-top: 0; padding-bottom: 0;">
+  <div class="section-eyebrow"><span>Course Features</span></div>
+  <h2 class="section-title">이 강좌가 다른 이유 3가지</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-num">01</div>
+      <div class="feature-title">외우는 공부 없습니다</div>
+      <p class="feature-desc">코딩 문법을 외울 필요가 전혀 없습니다. AI에게 "이런 기능 만들어줘"라고 말하고 코드를 붙여넣는 것이 전부입니다. 여러분은 기획자이자 감독, AI가 코더입니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">02</div>
+      <div class="feature-title">강좌 마치면 현장에서 바로 씁니다</div>
+      <p class="feature-desc">완성된 앱 URL을 단톡방에 공유하면, 팀원 누구나 스마트폰으로 공구 입출고를 기록할 수 있습니다. 수료 다음 날부터 실제 사용 가능합니다.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">03</div>
+      <div class="feature-title">에러가 나도 괜찮습니다</div>
+      <p class="feature-desc">에러 메시지를 AI에 복붙하면 AI가 고쳐줍니다. 이 강좌는 에러 대응 방법을 의도적으로 시연하면서 진행합니다. 에러를 만나도 해결할 수 있다는 자신감이 진짜 목표입니다.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 커리큘럼 ══════════ -->
+<div class="section">
+  <div class="section-eyebrow"><span>Curriculum</span></div>
+  <h2 class="section-title">강좌 구성 — 총 5파트 20강</h2>
+  <div class="curriculum">
+    <div class="part-item">
+      <div class="part-num-col">01</div>
+      <div class="part-content">
+        <div class="part-title">바이브 코딩이란?</div>
+        <div class="part-desc">AI 개념 이해 · Claude·ChatGPT·Gemini 가입 · 명품 프롬프트 3계명 · 에러 마인드셋</div>
+        <div class="part-meta">
+          <span class="meta-chip">4강</span>
+          <span class="meta-chip">약 90분</span>
+          <span class="meta-chip">개념·환경 설정</span>
+        </div>
+      </div>
+    </div>
+    <div class="part-item">
+      <div class="part-num-col">02</div>
+      <div class="part-content">
+        <div class="part-title">데이터 준비</div>
+        <div class="part-desc">구글 드라이브 폴더 설계 · 공구목록·입출고이력 시트 생성 · 고유 ID 체계 · 이미지 수집</div>
+        <div class="part-meta">
+          <span class="meta-chip">4강</span>
+          <span class="meta-chip">약 90분</span>
+          <span class="meta-chip">Google Sheets</span>
+        </div>
+      </div>
+    </div>
+    <div class="part-item">
+      <div class="part-num-col">03</div>
+      <div class="part-content">
+        <div class="part-title">바이브 코딩으로 앱 만들기 ★ 핵심</div>
+        <div class="part-desc">Apps Script 첫 실행 · 입출고 폼 · 재고 자동 감소 · 검색·그룹화 · 이미지 연동 · 공구 추가·중복 검사</div>
+        <div class="part-meta">
+          <span class="meta-chip">8강</span>
+          <span class="meta-chip">약 240분</span>
+          <span class="meta-chip">Apps Script</span>
+        </div>
+      </div>
+    </div>
+    <div class="part-item">
+      <div class="part-num-col">04</div>
+      <div class="part-content">
+        <div class="part-title">화면 꾸미기</div>
+        <div class="part-desc">전체 디자인 개선 · 색상·폰트 변경 · 모바일 최적화 확인</div>
+        <div class="part-meta">
+          <span class="meta-chip">3강</span>
+          <span class="meta-chip">약 60분</span>
+          <span class="meta-chip">UI/UX</span>
+        </div>
+      </div>
+    </div>
+    <div class="part-item">
+      <div class="part-num-col">05</div>
+      <div class="part-content">
+        <div class="part-title">배포 및 공유</div>
+        <div class="part-desc">최종 배포 설정 · URL 생성 · QR코드·카카오톡 공유 · 시트 보호 · 접근 권한 관리</div>
+        <div class="part-meta">
+          <span class="meta-chip">3강</span>
+          <span class="meta-chip">약 60분</span>
+          <span class="meta-chip">실전 배포</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 수강 대상 ══════════ -->
+<div class="section" style="background: var(--green-faint); max-width: 100%; padding: 64px 0; border-top: 1px solid #c8d8a0;">
+<div class="section" style="padding-top: 0; padding-bottom: 0;">
+  <div class="section-eyebrow"><span>Who is this for</span></div>
+  <h2 class="section-title">이런 분께 딱 맞습니다</h2>
+  <div class="target-grid">
+    <div class="target-card yes">
+      <span class="target-label">✔ 이런 분</span>
+      <ul class="target-list">
+        <li>건설·제조·물류 현장에서 공구나 자재를 관리하는 분</li>
+        <li>엑셀은 쓸 줄 알지만 앱 개발은 배운 적 없는 분</li>
+        <li>외주 개발 비용이 부담스러운 소규모 사업장 운영자</li>
+        <li>AI에 관심은 있지만 어디서 시작할지 모르는 분</li>
+        <li>코딩 없이 생산성을 높이고 싶은 사무직·관리직</li>
+      </ul>
+    </div>
+    <div class="target-card no">
+      <span class="target-label">✘ 이런 분께는 맞지 않을 수 있습니다</span>
+      <ul class="target-list">
+        <li>앱을 상용 서비스로 출시하려는 분 (시즌 2 강좌 예정)</li>
+        <li>파이썬·자바스크립트 등 코딩 언어를 깊이 배우고 싶은 분</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 완성 결과물 ══════════ -->
+<div class="section">
+  <div class="section-eyebrow"><span>What you'll get</span></div>
+  <h2 class="section-title">강좌를 마치면 손에 들어오는 것</h2>
+  <div class="output-list">
+    <div class="output-item">
+      <div class="output-icon">📱</div>
+      <div class="output-text">
+        <strong>스마트폰으로 접속 가능한 공구관리 웹앱 URL</strong>
+        <span>팀원 누구나 링크 하나로 바로 접속. 별도 앱 설치 불필요.</span>
+      </div>
+    </div>
+    <div class="output-item">
+      <div class="output-icon">📊</div>
+      <div class="output-text">
+        <strong>출고할 때마다 재고가 자동 차감되는 기능</strong>
+        <span>수기 계산 없이 현재 재고 수량이 실시간으로 반영.</span>
+      </div>
+    </div>
+    <div class="output-item">
+      <div class="output-icon">🖼</div>
+      <div class="output-text">
+        <strong>공구 이미지가 목록에 표시되는 기능</strong>
+        <span>이름이 헷갈려도 사진으로 바로 구분. 현장 사용성 극대화.</span>
+      </div>
+    </div>
+    <div class="output-item">
+      <div class="output-icon">📲</div>
+      <div class="output-text">
+        <strong>QR코드·카카오톡·홈 화면 바로가기로 공유된 앱</strong>
+        <span>창고 입구에 QR코드 붙여두면 끝. 팀원 모두 바로 사용.</span>
+      </div>
+    </div>
+    <div class="output-item">
+      <div class="output-icon">🤖</div>
+      <div class="output-text">
+        <strong>혼자서도 Claude AI로 기능을 추가할 수 있는 자신감</strong>
+        <span>강좌 이후에도 "이런 기능 추가해줘"라고 AI에게 말할 수 있는 능력.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 운영 방식 ══════════ -->
+<div class="section" style="background: var(--white); max-width: 100%; padding: 64px 0; border-top: 1px solid var(--sand-mid); border-bottom: 1px solid var(--sand-mid);">
+<div class="section" style="padding-top: 0; padding-bottom: 0;">
+  <div class="section-eyebrow"><span>How to Join</span></div>
+  <h2 class="section-title">온라인·오프라인 두 가지 방법으로 수강</h2>
+  <div class="mode-grid">
+    <div class="mode-card online">
+      <span class="mode-card-label">온라인 VOD</span>
+      <div class="mode-card-title">내 페이스대로<br>언제든 수강</div>
+      <div class="mode-rows">
+        <div class="mode-row">
+          <span class="mode-key">플랫폼</span>
+          <span class="mode-val">클래스101 · 인프런</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">수강 기간</span>
+          <span class="mode-val">무제한 (VOD 영구 소장)</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">정가</span>
+          <span class="mode-val">79,000원</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">얼리버드</span>
+          <span class="mode-val">49,000원</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">정원</span>
+          <span class="mode-val">제한 없음</span>
+        </div>
+      </div>
+    </div>
+    <div class="mode-card offline">
+      <span class="mode-card-label">오프라인 집합</span>
+      <div class="mode-card-title">강사와 함께<br>그 자리에서 완성</div>
+      <div class="mode-rows">
+        <div class="mode-row">
+          <span class="mode-key">장소</span>
+          <span class="mode-val">한국디지털교육원</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">원데이반</span>
+          <span class="mode-val">150,000원 · 1일 6시간</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">주말완성반</span>
+          <span class="mode-val">250,000원 · 토·일 12시간</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">정원</span>
+          <span class="mode-val">최대 15명 소규모</span>
+        </div>
+        <div class="mode-row">
+          <span class="mode-key">기업출강</span>
+          <span class="mode-val">별도 문의</span>
+        </div>
+      </div>
+      <div class="support-badge">내일배움카드 적용 가능 (준비 중)</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 강사 소개 ══════════ -->
+<div class="section">
+  <div class="section-eyebrow"><span>Instructor</span></div>
+  <h2 class="section-title">강사 소개</h2>
+  <div class="author-block">
+    <div class="author-avatar">황</div>
+    <div class="author-info">
+      <div class="author-name">황승현</div>
+      <div class="author-role">㈜한국디지털교육원 · 바이브 코딩 강사</div>
+      <p class="author-bio">
+        현장의 가려운 곳을 긁어주는 앱을 만드는 개발자이자,
+        그 과정을 가장 쉬운 언어로 풀어내는 강사입니다.
+        코딩 경험이 없는 일반인도 AI와 협업해 실용적인 앱을 만들 수 있도록
+        바이브 코딩 방법론을 현장 중심으로 체계화했습니다.
+      </p>
+      <span class="author-quote">"외우지 말고, 말하세요. AI가 만들어드립니다."</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title">
+      강좌가 열리면<br>
+      <em>가장 먼저 알고 싶으신가요?</em>
+    </h2>
+    <p class="cta-sub">
+      사전 신청자에게는 얼리버드 가격과 오픈 일정을 가장 먼저 안내드립니다.<br>
+      아래 버튼을 눌러 사전 신청 명단에 등록해 두세요.
+    </p>
+    <div class="cta-buttons">
+      <a href="#" class="btn-primary">
+        사전 신청 등록하기 →
+      </a>
+      <a href="#" class="btn-secondary">
+        오프라인 강좌 문의
+      </a>
+    </div>
+    <p class="cta-note">사전 신청은 구매 의무가 없습니다. 오픈 알림만 받으실 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- 푸터 -->
+<footer class="site-footer">
+  <p>㈜한국디지털교육원 · 교육사업팀</p>
+  <p style="margin-top:6px;">본 페이지는 강좌 개설 전 사전 안내용 페이지입니다.</p>
+</footer>
+
+<script>
+  // 읽기 진행 표시바
+  const bar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (scrolled / total * 100) + '%';
+  });
+</script>
+</body>
+</html>
